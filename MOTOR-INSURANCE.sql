@@ -1,12 +1,14 @@
--- Create Database
+-- create Database
+
 CREATE DATABASE MotorInsuranceDB;
 USE MotorInsuranceDB;
 
 -- 1. Customers Table
+
 CREATE TABLE Customers (
     CustomerID INT PRIMARY KEY AUTO_INCREMENT,
     FirstName VARCHAR(50) NOT NULL,
-    Last VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
     Email VARCHAR(100) UNIQUE,
     Phone VARCHAR(15),
     Address VARCHAR(255),
@@ -15,21 +17,16 @@ CREATE TABLE Customers (
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-desc Customers;
-
-alter table Customers
-rename column Last to LastName;
-
 -- 2. Vehicle Categories Table
+
 CREATE TABLE VehicleCategories (
     CategoryID INT PRIMARY KEY AUTO_INCREMENT,
     CategoryName VARCHAR(50) NOT NULL,
     RiskFactor DECIMAL(3,2) NOT NULL
 );
 
-desc VehicleCategories;
-
 -- 3. Vehicles Table
+
 CREATE TABLE Vehicles (
     VehicleID INT PRIMARY KEY AUTO_INCREMENT,
     CustomerID INT,
@@ -43,25 +40,18 @@ CREATE TABLE Vehicles (
     FOREIGN KEY (CategoryID) REFERENCES VehicleCategories(CategoryID)
 );
 
-desc Vehicles;
-
 -- 4. Insurance Plans Table
+
 CREATE TABLE InsurancePlans (
     PlanID INT PRIMARY KEY AUTO_INCREMENT,
     PlanName VARCHAR(50) NOT NULL, 
     BasePremium DECIMAL(10,2) NOT NULL,
-    CoverageAmount DECIMAL(12,2) NOT NULL
+    CoverageAmount DECIMAL(12,2) NOT NULL,
+    Description TEXT
 );
 
-desc InsurancePlans;
-
-alter table InsurancePlans
-add Description varchar(20);
-
-alter table InsurancePlans
-modify column Description TEXT;
-
 -- 5. Agents Table
+
 CREATE TABLE Agents (
     AgentID INT PRIMARY KEY AUTO_INCREMENT,
     FirstName VARCHAR(50),
@@ -71,9 +61,8 @@ CREATE TABLE Agents (
     CommissionRate DECIMAL(4,2)
 );
 
-desc Agents;
-
 -- 6. Policies Table
+
 CREATE TABLE Policies (
     PolicyID INT PRIMARY KEY AUTO_INCREMENT,
     CustomerID INT,
@@ -90,9 +79,8 @@ CREATE TABLE Policies (
     FOREIGN KEY (AgentID) REFERENCES Agents(AgentID)
 );
 
-desc Policies;
-
 -- 7. Payments Table
+
 CREATE TABLE Payments (
     PaymentID INT PRIMARY KEY AUTO_INCREMENT,
     PolicyID INT,
@@ -103,18 +91,16 @@ CREATE TABLE Payments (
     FOREIGN KEY (PolicyID) REFERENCES Policies(PolicyID)
 );
 
-desc Payments;
-
 -- 8. Claim Types Table
+
 CREATE TABLE ClaimTypes (
     TypeID INT PRIMARY KEY AUTO_INCREMENT,
     TypeName VARCHAR(50) NOT NULL,
     MaxCoveragePercentage DECIMAL(5,2)
 );
 
-desc ClaimTypes;
-
 -- 9. Claims Table
+
 CREATE TABLE Claims (
     ClaimID INT PRIMARY KEY AUTO_INCREMENT,
     PolicyID INT,
@@ -128,9 +114,8 @@ CREATE TABLE Claims (
     FOREIGN KEY (TypeID) REFERENCES ClaimTypes(TypeID)
 );
 
-desc Claims;
-
 -- 10. Adjusters Table
+
 CREATE TABLE Adjusters (
     AdjusterID INT PRIMARY KEY AUTO_INCREMENT,
     FirstName VARCHAR(50),
@@ -139,9 +124,8 @@ CREATE TABLE Adjusters (
     ExperienceYears INT
 );
 
-desc Adjusters;
-
 -- 11. Claim Assessments Table
+
 CREATE TABLE ClaimAssessments (
     AssessmentID INT PRIMARY KEY AUTO_INCREMENT,
     ClaimID INT,
@@ -153,9 +137,8 @@ CREATE TABLE ClaimAssessments (
     FOREIGN KEY (AdjusterID) REFERENCES Adjusters(AdjusterID)
 );
 
-desc ClaimAssessments;
-
 -- 12. Network Workshops Table
+
 CREATE TABLE NetworkWorkshops (
     WorkshopID INT PRIMARY KEY AUTO_INCREMENT,
     WorkshopName VARCHAR(100) NOT NULL,
@@ -165,9 +148,8 @@ CREATE TABLE NetworkWorkshops (
     IsCashless BOOLEAN DEFAULT TRUE
 );
 
-desc NetworkWorkshops;
-
 -- 13. Repairs Table
+
 CREATE TABLE Repairs (
     RepairID INT PRIMARY KEY AUTO_INCREMENT,
     ClaimID INT,
@@ -179,9 +161,8 @@ CREATE TABLE Repairs (
     FOREIGN KEY (WorkshopID) REFERENCES NetworkWorkshops(WorkshopID)
 );
 
-desc Repairs;
-
 -- 14. Policy Renewals Table
+
 CREATE TABLE Renewals (
     RenewalID INT PRIMARY KEY AUTO_INCREMENT,
     OldPolicyID INT,
@@ -191,9 +172,8 @@ CREATE TABLE Renewals (
     FOREIGN KEY (OldPolicyID) REFERENCES Policies(PolicyID)
 );
 
-desc Renewals;
+-- 15. Audit Logs Table 
 
--- 15. Audit Logs Table (Used for Triggers)
 CREATE TABLE AuditLogs (
     LogID INT PRIMARY KEY AUTO_INCREMENT,
     TableName VARCHAR(50),
@@ -203,9 +183,12 @@ CREATE TABLE AuditLogs (
     Details TEXT
 );
 
-desc AuditLogs;
+-- ==========================
+-- DATA INSERTIONS 
+-- ==========================
 
 -- 1. Customers 
+
 INSERT INTO Customers (FirstName, LastName, Email, Phone, Address, DateOfBirth, DriverLicenseNumber) VALUES
 ('John', 'Doe', 'john.doe@email.com', '555-0101', '123 Main St, NY', '1985-05-12', 'DL-10001'),
 ('Jane', 'Smith', 'jane.smith@email.com', '555-0102', '456 Oak Ave, CA', '1990-08-22', 'DL-10002'),
@@ -231,6 +214,7 @@ INSERT INTO Customers (FirstName, LastName, Email, Phone, Address, DateOfBirth, 
 select * from Customers;
 
 -- 2. VehicleCategories
+
 INSERT INTO VehicleCategories (CategoryName, RiskFactor) VALUES
 ('Sedan', 1.00), 
 ('SUV', 1.20), 
@@ -256,6 +240,7 @@ INSERT INTO VehicleCategories (CategoryName, RiskFactor) VALUES
 select * from VehicleCategories;
 
 -- 3. Vehicles 
+
 INSERT INTO Vehicles (CustomerID, CategoryID, Make, Model, Year, LicensePlate, VIN) VALUES
 (1, 1, 'Toyota', 'Camry', 2021, '7XYZ89', 'VIN10000000000001'),
 (2, 2, 'Ford', 'Explorer', 2020, '8ABC12', 'VIN10000000000002'),
@@ -281,6 +266,7 @@ INSERT INTO Vehicles (CustomerID, CategoryID, Make, Model, Year, LicensePlate, V
 select * from Vehicles;
 
 -- 4. InsurancePlans 
+
 INSERT INTO InsurancePlans (PlanName, BasePremium, CoverageAmount, Description) VALUES
 ('Third Party Liability Only', 200.00, 50000.00, 'Basic legal requirement'),
 ('Standard Comprehensive', 600.00, 150000.00, 'Covers own damage and third party'),
@@ -306,6 +292,7 @@ INSERT INTO InsurancePlans (PlanName, BasePremium, CoverageAmount, Description) 
 select * from InsurancePlans;
 
 -- 5. Agents 
+
 INSERT INTO Agents (FirstName, LastName, Email, Phone, CommissionRate) VALUES
 ('Tom', 'Cruise', 'tom@agent.com', '555-9001', 10.00), 
 ('Brad', 'Pitt', 'brad@agent.com', '555-9002', 12.50),
@@ -331,6 +318,7 @@ INSERT INTO Agents (FirstName, LastName, Email, Phone, CommissionRate) VALUES
 select * from Agents;
 
 -- 6. Policies 
+
 INSERT INTO Policies (CustomerID, VehicleID, PlanID, AgentID, StartDate, EndDate, TotalPremium, PolicyStatus) VALUES
 (1, 1, 1, 1, '2025-01-01', '2026-01-01', 200.00, 'Active'),
 (2, 2, 2, 2, '2025-02-15', '2026-02-15', 720.00, 'Active'),
@@ -356,31 +344,33 @@ INSERT INTO Policies (CustomerID, VehicleID, PlanID, AgentID, StartDate, EndDate
 select * from Policies;
 
 -- 7. Payments 
+
 INSERT INTO Payments (PolicyID, PaymentDate, AmountPaid, PaymentMethod, PaymentStatus) VALUES
-(21, '2025-01-01', 200.00, 'Credit Card', 'Success'), 
-(22, '2025-02-15', 720.00, 'Bank Transfer', 'Success'),
-(23, '2025-03-10', 810.00, 'UPI', 'Success'), 
-(24, '2025-04-01', 1800.00, 'Credit Card', 'Success'),
-(25, '2025-05-20', 180.00, 'UPI', 'Success'), 
-(26, '2025-06-01', 1800.00, 'Bank Transfer', 'Success'),
-(27, '2024-07-11', 840.00, 'Credit Card', 'Success'), 
-(28, '2025-08-01', 960.00, 'Debit Card', 'Success'),
-(29, '2025-09-15', 660.00, 'UPI', 'Success'), 
-(30, '2025-10-01', 2640.00, 'Bank Transfer', 'Success'),
-(31, '2025-11-05', 577.50, 'Credit Card', 'Success'), 
-(32, '2025-12-01', 522.50, 'UPI', 'Success'),
-(33, '2025-01-15', 7500.00, 'Bank Transfer', 'Success'), 
-(34, '2025-02-20', 920.00, 'Debit Card', 'Success'),
-(35, '2025-03-25', 1620.00, 'Credit Card', 'Success'), 
-(36, '2025-04-10', 600.00, 'UPI', 'Success'),
-(37, '2025-05-01', 75.00, 'Credit Card', 'Success'), 
-(38, '2025-06-15', 190.00, 'Debit Card', 'Success'),
-(39, '2025-07-01', 3750.00, 'Bank Transfer', 'Success'), 
-(40, '2025-08-20', 1575.00, 'UPI', 'Success');
+(1, '2025-01-01', 200.00, 'Credit Card', 'Success'), 
+(2, '2025-02-15', 720.00, 'Bank Transfer', 'Success'),
+(3, '2025-03-10', 810.00, 'UPI', 'Success'), 
+(4, '2025-04-01', 1800.00, 'Credit Card', 'Success'),
+(5, '2025-05-20', 180.00, 'UPI', 'Success'), 
+(6, '2025-06-01', 1800.00, 'Bank Transfer', 'Success'),
+(7, '2024-07-11', 840.00, 'Credit Card', 'Success'), 
+(8, '2025-08-01', 960.00, 'Debit Card', 'Success'),
+(9, '2025-09-15', 660.00, 'UPI', 'Success'), 
+(10, '2025-10-01', 2640.00, 'Bank Transfer', 'Success'),
+(11, '2025-11-05', 577.50, 'Credit Card', 'Success'), 
+(12, '2025-12-01', 522.50, 'UPI', 'Success'),
+(13, '2025-01-15', 7500.00, 'Bank Transfer', 'Success'), 
+(14, '2025-02-20', 920.00, 'Debit Card', 'Success'),
+(15, '2025-03-25', 1620.00, 'Credit Card', 'Success'), 
+(16, '2025-04-10', 600.00, 'UPI', 'Success'),
+(17, '2025-05-01', 75.00, 'Credit Card', 'Success'), 
+(18, '2025-06-15', 190.00, 'Debit Card', 'Success'),
+(19, '2025-07-01', 3750.00, 'Bank Transfer', 'Success'), 
+(20, '2025-08-20', 1575.00, 'UPI', 'Success');
 
 select * from Payments;
 
 -- 8. ClaimTypes 
+
 INSERT INTO ClaimTypes (TypeName, MaxCoveragePercentage) VALUES
 ('Accidental Collision', 100.00), 
 ('Total Theft', 100.00), 
@@ -405,32 +395,34 @@ INSERT INTO ClaimTypes (TypeName, MaxCoveragePercentage) VALUES
 
 select * from ClaimTypes;
 
--- 9. Claims
+-- 9. Claims 
+
 INSERT INTO Claims (PolicyID, TypeID, ClaimDate, IncidentDate, EstimatedCost, ApprovedAmount, ClaimStatus) VALUES
-(21, 1, '2025-03-15', '2025-03-14', 1500.00, 1200.00, 'Approved'),
-(22, 2, '2025-05-20', '2025-05-18', 4000.00, 3500.00, 'Approved'),
-(23, 3, '2025-06-12', '2025-06-10', 8000.00, 7800.00, 'Settled'),
-(24, 4, '2025-07-01', '2025-06-28', 25000.00, 0.00, 'Pending'),
-(25, 5, '2025-08-11', '2025-08-10', 500.00, 400.00, 'Approved'),
-(26, 6, '2025-09-02', '2025-08-31', 6200.00, 6000.00, 'Settled'),
-(27, 7, '2024-11-15', '2024-11-14', 3100.00, 0.00, 'Rejected'),
-(28, 8, '2025-10-10', '2025-10-10', 900.00, 900.00, 'Settled'),
-(29, 9, '2025-11-20', '2025-11-18', 1200.00, 1200.00, 'Approved'),
-(30, 10, '2025-12-05', '2025-12-01', 15000.00, 14000.00, 'Approved'),
-(31, 11, '2026-01-10', '2026-01-08', 2200.00, 0.00, 'Pending'),
-(32, 12, '2026-02-14', '2026-02-11', 5400.00, 0.00, 'Pending'),
-(33, 13, '2025-04-22', '2025-04-20', 45000.00, 42000.00, 'Settled'),
-(34, 14, '2025-05-05', '2025-05-03', 1800.00, 1500.00, 'Approved'),
-(35, 15, '2025-07-20', '2025-07-19', 9500.00, 9000.00, 'Settled'),
-(36, 16, '2025-08-25', '2025-08-25', 750.00, 750.00, 'Settled'),
-(37, 17, '2025-09-12', '2025-09-10', 300.00, 200.00, 'Approved'),
-(38, 18, '2025-10-14', '2025-10-12', 4100.00, 4000.00, 'Settled'),
-(39, 19, '2025-11-01', '2025-10-30', 2700.00, 2500.00, 'Approved'),
-(40, 20, '2025-12-15', '2025-12-14', 11000.00, 0.00, 'Pending');
+(1, 1, '2025-03-15', '2025-03-14', 1500.00, 1200.00, 'Approved'),
+(2, 2, '2025-05-20', '2025-05-18', 4000.00, 3500.00, 'Approved'),
+(3, 3, '2025-06-12', '2025-06-10', 8000.00, 7800.00, 'Settled'),
+(4, 4, '2025-07-01', '2025-06-28', 25000.00, 0.00, 'Pending'),
+(5, 5, '2025-08-11', '2025-08-10', 500.00, 400.00, 'Approved'),
+(6, 6, '2025-09-02', '2025-08-31', 6200.00, 6000.00, 'Settled'),
+(7, 7, '2024-11-15', '2024-11-14', 3100.00, 0.00, 'Rejected'),
+(8, 8, '2025-10-10', '2025-10-10', 900.00, 900.00, 'Settled'),
+(9, 9, '2025-11-20', '2025-11-18', 1200.00, 1200.00, 'Approved'),
+(10, 10, '2025-12-05', '2025-12-01', 15000.00, 14000.00, 'Approved'),
+(11, 11, '2026-01-10', '2026-01-08', 2200.00, 0.00, 'Pending'),
+(12, 12, '2026-02-14', '2026-02-11', 5400.00, 0.00, 'Pending'),
+(13, 13, '2025-04-22', '2025-04-20', 45000.00, 42000.00, 'Settled'),
+(14, 14, '2025-05-05', '2025-05-03', 1800.00, 1500.00, 'Approved'),
+(15, 15, '2025-07-20', '2025-07-19', 9500.00, 9000.00, 'Settled'),
+(16, 16, '2025-08-25', '2025-08-25', 750.00, 750.00, 'Settled'),
+(17, 17, '2025-09-12', '2025-09-10', 300.00, 200.00, 'Approved'),
+(18, 18, '2025-10-14', '2025-10-12', 4100.00, 4000.00, 'Settled'),
+(19, 19, '2025-11-01', '2025-10-30', 2700.00, 2500.00, 'Approved'),
+(20, 20, '2025-12-15', '2025-12-14', 11000.00, 0.00, 'Pending');
 
 select * from Claims;
 
 -- 10. Adjusters 
+
 INSERT INTO Adjusters (FirstName, LastName, Phone, ExperienceYears) VALUES
 ('Alan', 'Grant', '555-4001', 5), 
 ('Ellie', 'Sattler', '555-4002', 8), 
@@ -456,6 +448,7 @@ INSERT INTO Adjusters (FirstName, LastName, Phone, ExperienceYears) VALUES
 select * from Adjusters;
 
 -- 11. ClaimAssessments
+
 INSERT INTO ClaimAssessments (ClaimID, AdjusterID, AssessmentDate, DamageDescription, RecommendedAmount) VALUES
 (1, 1, '2025-03-17', 'Bumper scratched up', 1200.00), 
 (2, 2, '2025-05-22', 'Dent on left flank side door', 3500.00),
@@ -481,6 +474,7 @@ INSERT INTO ClaimAssessments (ClaimID, AdjusterID, AssessmentDate, DamageDescrip
 select * from ClaimAssessments;
 
 -- 12. NetworkWorkshops 
+
 INSERT INTO NetworkWorkshops (WorkshopName, ContactPerson, Phone, City, IsCashless) VALUES
 ('Elite Collision Care', 'Peter Parker', '555-7001', 'New York', TRUE),
 ('Bay Area Auto Body', 'Bruce Banner', '555-7002', 'San Francisco', TRUE),
@@ -506,14 +500,15 @@ INSERT INTO NetworkWorkshops (WorkshopName, ContactPerson, Phone, City, IsCashle
 select * from NetworkWorkshops;
 
 -- 13. Repairs
+
 INSERT INTO Repairs (ClaimID, WorkshopID, RepairStartDate, RepairEndDate, ActualRepairCost) VALUES
 (1, 1, '2025-03-20', '2025-03-25', 1250.00), 
 (2, 2, '2025-05-25', '2025-06-02', 3600.00),
 (3, 3, '2025-06-20', '2025-07-05', 7900.00), 
 (4, 4, '2026-01-01', NULL, NULL),
-(5, 5, '2025-08-15', '2025-08-17', 450.00),
+(5, 5, '2025-08-15', '2025-08-17', 450.00), 
 (6, 6, '2025-09-10', '2025-09-20', 6100.00), 
-(7, 7, '2024-11-20', '2024-11-22', 3200.00),
+(7, 7, '2024-11-20', '2024-11-22', 3200.00), 
 (8, 8, '2025-10-15', '2025-10-16', 900.00),
 (9, 9, '2025-11-25', '2025-12-01', 1300.00), 
 (10, 10, '2025-12-10', '2025-12-24', 14200.00),
@@ -530,32 +525,34 @@ INSERT INTO Repairs (ClaimID, WorkshopID, RepairStartDate, RepairEndDate, Actual
 
 select * from Repairs;
 
--- 14. Renewals
+-- 14. Renewals 
+
 INSERT INTO Renewals (OldPolicyID, NewPolicyID, RenewalDate, DiscountApplied) VALUES 
-(21, 100, '2026-01-01', 10.00), 
-(22, 101, '2026-02-15', 100.00),
-(23, 102, '2026-03-10', 20.00),
-(24, 103, '2026-04-01', 25.00), 
-(25, 104, '2026-05-20', 20.00), 
-(26, 105, '2026-06-01', 30.00),
-(27, 106, '2025-02-15', 50.00),
-(28, 107, '2026-08-01', 20.00), 
-(29, 108, '2026-09-15', 30.00), 
-(30, 109, '2026-10-01', 30.00),
-(31, 110, '2026-11-05', 20.00), 
-(32, 111, '2026-12-01', 10.00), 
-(33, 112, '2026-01-15', 10.00),
-(34, 113, '2026-02-20', 40.00), 
-(35, 114, '2026-03-25', 50.00), 
-(36, 115, '2026-04-10', 40.00),
-(37, 116, '2026-05-01', 30.00), 
-(38, 117, '2026-06-15', 20.00), 
-(39, 118, '2026-07-01', 25.00),
-(40, 119, '2026-08-20', 35.00);
+(1, 100, '2026-01-01', 10.00), 
+(2, 101, '2026-02-15', 100.00),
+(3, 102, '2026-03-10', 20.00), 
+(4, 103, '2026-04-01', 25.00), 
+(5, 104, '2026-05-20', 20.00), 
+(6, 105, '2026-06-01', 30.00),
+(7, 106, '2025-02-15', 50.00), 
+(8, 107, '2026-08-01', 20.00), 
+(9, 108, '2026-09-15', 30.00), 
+(10, 109, '2026-10-01', 30.00),
+(11, 110, '2026-11-05', 20.00), 
+(12, 111, '2026-12-01', 10.00), 
+(13, 112, '2026-01-15', 10.00), 
+(14, 113, '2026-02-20', 40.00), 
+(15, 114, '2026-03-25', 50.00), 
+(16, 115, '2026-04-10', 40.00),
+(17, 116, '2026-05-01', 30.00), 
+(18, 117, '2026-06-15', 20.00), 
+(19, 118, '2026-07-01', 25.00), 
+(20, 119, '2026-08-20', 35.00);
 
 select * from Renewals;
 
 -- 15. AuditLogs 
+
 INSERT INTO AuditLogs (TableName, ActionType, RecordID, Details) VALUES
 ('Customers', 'INSERT', 1, 'Initial load'), 
 ('Customers', 'INSERT', 2, 'Initial load'),
@@ -580,14 +577,20 @@ INSERT INTO AuditLogs (TableName, ActionType, RecordID, Details) VALUES
 
 select * from AuditLogs;
 
+-- ====================================
+-- LOGICAL SCENARIOS 
+-- ====================================
+
 -- scenario 1
+
 -- Identify customers with above-average claim estimates.
 
-SELECT c.CustomerID, c.FirstName, c.LastName, cl.ClaimID, cl.EstimatedCost
+SELECT c.CustomerID, concat(c.FirstName, ' ' , c.LastName) as CustomerName, cl.ClaimID, cl.EstimatedCost
 FROM Customers c
 JOIN Policies p ON c.CustomerID = p.CustomerID
 JOIN Claims cl ON p.PolicyID = cl.PolicyID
-WHERE cl.EstimatedCost > (SELECT AVG(EstimatedCost) FROM Claims);
+WHERE cl.EstimatedCost > (SELECT AVG(EstimatedCost) FROM Claims)
+ORDER BY c.CustomerID;
 
 -- scenario 2
 
@@ -599,33 +602,37 @@ FROM Vehicles v
 JOIN Policies p ON v.VehicleID = p.VehicleID
 JOIN InsurancePlans ip ON p.PlanID = ip.PlanID
 WHERE p.PolicyStatus = 'Active' 
-  AND p.PlanID IN (SELECT PlanID FROM InsurancePlans WHERE BasePremium > 500);
+  AND ip.BasePremium > 500;
   
 -- scenario 3
   
 -- Identify workshops with the highest repair cost overruns.
   
-SELECT 
-    w.WorkshopID, 
-    w.WorkshopName, 
+SELECT w.WorkshopID, w.WorkshopName, 
     COUNT(r.RepairID) AS TotalExceededRepairs,
-    SUM(r.ActualRepairCost - c.ApprovedAmount) AS TotalOverageAmount,
+    (SUM(r.ActualRepairCost) - SUM(c.ApprovedAmount)) AS TotalOverrunAmount,
     AVG(r.ActualRepairCost) AS AvgActualCost
 FROM NetworkWorkshops w
 JOIN Repairs r ON w.WorkshopID = r.WorkshopID
 JOIN Claims c ON r.ClaimID = c.ClaimID
-WHERE r.ActualRepairCost > c.ApprovedAmount
+WHERE r.ActualRepairCost IS NOT NULL 
+AND r.ActualRepairCost > c.ApprovedAmount
 GROUP BY w.WorkshopID, w.WorkshopName;
 
--- scenario 4
+-- Scenario 4
 
--- Summarize the total premiums collected grouped by vehicle category name.
+-- Category-wise Policy & Revenue Analysis Query
 
-SELECT vc.CategoryName, p.PolicyID AS TotalPolicies, SUM(p.TotalPremium) AS Revenue
+SELECT 
+    vc.CategoryName, 
+    COUNT(p.PolicyID) AS TotalPolicies,
+    COALESCE(SUM(p.TotalPremium), 0.00) AS Revenue
 FROM VehicleCategories vc
-JOIN Vehicles v ON vc.CategoryID = v.CategoryID
-JOIN Policies p ON v.VehicleID = p.VehicleID
-GROUP BY vc.CategoryName, p.PolicyID;
+LEFT JOIN Vehicles v ON vc.CategoryID = v.CategoryID
+LEFT JOIN Policies p ON v.VehicleID = p.VehicleID
+GROUP BY vc.CategoryName, vc.CategoryID
+ORDER BY Revenue ;
+
 
 -- scenario 5
 
@@ -637,7 +644,7 @@ WHERE a.AgentID IN (
     SELECT p.AgentID 
     FROM Policies p 
     WHERE p.PolicyStatus IN ('Active')
-      AND (p.StartDate BETWEEN '2025-07-01' AND '2026-11-05')
+	AND (p.StartDate BETWEEN '2025-07-01' AND '2026-11-05')
 );
 
 -- scenario 6
@@ -659,7 +666,7 @@ SELECT cl.ClaimID, cl.ClaimStatus, ca.RecommendedAmount, adj.FirstName, adj.Expe
 FROM Claims cl
 JOIN ClaimAssessments ca ON cl.ClaimID = ca.ClaimID
 JOIN Adjusters adj ON ca.AdjusterID = adj.AdjusterID
-WHERE adj.AdjusterID IN (SELECT AdjusterID FROM Adjusters WHERE ExperienceYears > 5);
+WHERE adj.ExperienceYears > 5;
 
 -- scenario 8
 
@@ -677,15 +684,15 @@ ORDER BY pay.PaymentMethod;
 
 -- Audit high-index customer registrations and high-index policy records.
 
-SELECT c.CustomerID, CONCAT (c.FirstName, c.LastName) AS Customer_Name, p.PolicyID
+SELECT c.CustomerID, CONCAT (c.FirstName, ' ', c.LastName) AS Customer_Name, p.PolicyID
 from Customers c 
 left join Policies p on c.CustomerID = p.CustomerID
-WHERE c.CustomerID > 15
+WHERE c.CustomerID > 15 or p.PolicyID > 15
 UNION
-SELECT c.CustomerID, CONCAT (c.FirstName, c.LastName) AS Customer_Name, p.PolicyID
+SELECT c.CustomerID, CONCAT (c.FirstName, ' ', c.LastName) AS Customer_Name, p.PolicyID
 from Customers c 
 right join Policies p on c.CustomerID = p.CustomerID
-WHERE p.PolicyID > 36;
+WHERE c.CustomerID > 15 or p.PolicyID > 15;
 
 -- scenario 10
 
@@ -695,6 +702,10 @@ SELECT MAX(cl.ApprovedAmount) AS TopSettledValue
 FROM Claims cl
 JOIN ClaimTypes ct ON cl.TypeID = ct.TypeID
 WHERE ct.TypeName = 'Accidental Collision';
+
+-- ====================================
+-- LOGICAL PROCEDURES
+-- ====================================
 
 -- procedure 1
 
@@ -706,7 +717,7 @@ BEGIN
 SELECT c.ClaimID,c.ClaimDate,ct.TypeID,ct.MaxCoveragePercentage 
 FROM Claims c 
 JOIN ClaimTypes ct ON c.TypeID=ct.TypeID
-WHERE c.TypeID=p_claimid;
+WHERE c.ClaimID=p_claimid;
 END $$
 DELIMITER ;
 
@@ -725,43 +736,47 @@ DELIMITER ;
 
 CALL p_auditlogs_1(5,7);
 
--- procedure 3
--- Automated premium payment processing
+
+-- Procedure 3
 
 DELIMITER $$
 CREATE PROCEDURE Pro_Payment(IN p_policy_id INT, IN p_amount DECIMAL(10,2), IN p_method VARCHAR(30))
 BEGIN
-SELECT * FROM Payments 
-WHERE PolicyID = p_policy_id OR AmountPaid=p_amount OR PaymentMethod=p_method;
+    INSERT INTO Payments (PolicyID, PaymentDate, AmountPaid, PaymentMethod, PaymentStatus)
+    VALUES (p_policy_id, CURDATE(), p_amount, p_method, 'Success');
+    
+    SELECT * FROM Payments WHERE PolicyID = p_policy_id ORDER BY PaymentID DESC LIMIT 1;
 END$$
 DELIMITER ;
 
-CALL Pro_Payment(30,960,'Bank Transfer');
+CALL Pro_Payment(3,960,'Bank Transfer');
+
+-- ====================================
+-- LOGICAL FUNCTIONS 
+-- ====================================
 
 -- function 1
 
 -- Risk Factor Add-Extra Calculation
 
 DELIMITER $$
-CREATE FUNCTION f_vechilecategories(f_categoryid int)
-RETURNS decimal(5,2)
+CREATE FUNCTION f_vehiclecategories(f_categoryid int)
+RETURNS decimal(10,2)
 DETERMINISTIC
 BEGIN 
-DECLARE Add_extra decimal(5,2);
-SELECT RiskFactor+100 INTO Add_extra FROM VehicleCategories WHERE CategoryID=f_categoryid;
+DECLARE Add_extra decimal(10,2);
+SELECT (RiskFactor+100) INTO Add_extra FROM VehicleCategories WHERE CategoryID=f_categoryid;
 RETURN Add_extra;
 END $$
 DELIMITER ;
 
 SELECT 
-    LENGTH(CategoryID),
-    UPPER(CategoryName),
+    LENGTH(CategoryID) AS CategoryID_Len,
+    UPPER(CategoryName) AS CategoryName,
     RiskFactor,
-    F_VECHILECATEGORIES(CategoryID) AS Add_extra
-FROM
-    VehicleCategories
-WHERE
-    CategoryID = 11;
+    f_vehiclecategories(CategoryID) AS RiskFactorPercentage
+FROM VehicleCategories
+WHERE CategoryID = 11;
     
 -- function 2
 
@@ -784,12 +799,16 @@ SELECT
     PlanID,
     PlanName,
     BasePremium,
-    F_INSURANCEPLAN(PlanID) AS total_premium,
+    F_INSURANCEPLAN(PlanID) AS DiscountPremium,
     CoverageAmount,
     Description
 FROM
     InsurancePlans;
   
+-- ====================================
+-- LOGICAL TRIGGERS 
+-- ====================================  
+
 -- trigger 1
 
 -- Automated data validation for incoming premium payments.
@@ -799,21 +818,25 @@ CREATE TRIGGER before_pay_insert
 BEFORE INSERT ON Payments
 FOR EACH ROW
 BEGIN
-    IF NEW.AmountPaid IS NULL THEN
+    -- AmountPaid val pass pannama (NULL) irundha or 0/negative ah irundha 1.00 ah set pannum
+    IF NEW.AmountPaid IS NULL OR NEW.AmountPaid <= 0 THEN
         SET NEW.AmountPaid = 1.00;
     END IF;
 END$$
 DELIMITER ;
 
+-- insert new values
+
 INSERT INTO Payments (PolicyID, PaymentMethod, PaymentStatus, PaymentDate)
-VALUES (27, 'UPI', 'Success', '2026-01-02');
+VALUES (20, 'UPI', 'Success', '2025-10-01');
 
-select * from Payments where PaymentDate = '2026-01-02';
-
+-- Output Verification
+SELECT * FROM Payments WHERE PaymentDate = '2025-10-01';
 
 -- trigger 2
 
 -- Automated history logging for modified insurance policy statuses
+
 DELIMITER $$
 CREATE TRIGGER after_policy_update
 AFTER UPDATE ON Policies
@@ -821,26 +844,15 @@ FOR EACH ROW
 BEGIN
     IF OLD.PolicyStatus <> NEW.PolicyStatus THEN
         INSERT INTO auditlogs (TableName, ActionType, RecordID, ActionTimestamp, Details)
-        VALUES (
-            'Policies', 
-            'UPDATE', 
-            NEW.PolicyID, 
-            NOW(), 
-            CONCAT('Policy status updated from ', OLD.PolicyStatus, ' to ', NEW.PolicyStatus)
+        VALUES ('Policies', 'UPDATE', NEW.PolicyID, NOW(), 
+               CONCAT('Policy status updated from ', OLD.PolicyStatus, ' to ', NEW.PolicyStatus)
         );
     END IF;
 END$$
 DELIMITER ;
 
 SET sql_safe_updates = 0;
-UPDATE Policies SET PolicyStatus = 'Cancelled' WHERE PolicyID = 22;
+UPDATE Policies SET PolicyStatus = 'Cancelled' WHERE PolicyID = 2;
 
-SELECT * FROM auditlogs WHERE RecordID=22;
-
-
-
-
-
-
-
-
+-- Output Verification:
+SELECT * FROM auditlogs WHERE RecordID=2;
